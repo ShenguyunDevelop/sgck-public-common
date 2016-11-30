@@ -9,8 +9,8 @@ import com.sgck.dubbointerface.exception.BaseServiceException;
 
 import flex.messaging.io.amf.ASObject;
 
-public interface PubBusinessService
-{
+public interface PubBusinessService {
+	
 
 	// 默认缓存地址
 	public static final String DEFAULT_CACHE_ADDRESS = "default.redis.sysmon";
@@ -26,6 +26,23 @@ public interface PubBusinessService
 	public static final String SG9K_CACHE_ADDRESS = "default.redis.sg9k";
 	// 8kmq地址
 	public static final String SG8K_MQ_ADDRESS = "default.mq.sg8k";
+
+	/**
+	// 默认缓存地址
+		public static final String DEFAULT_CACHE_ADDRESS = "default.redis.sysmon_109";
+		// 默认数据库地址
+		public static final String DEFAULT_DB_ADDRESS = "default.db.sysmon_109";
+		// 8k数据库地址
+		public static final String SG8K_DB_ADDRESS = "default.db.sg8k_109";
+		// 8k缓存地址
+		public static final String SG8K_CACHE_ADDRESS = "default.redis.sg8k_109";
+		// 9k数据库地址
+		public static final String SG9K_DB_ADDRESS = "default.db.sg9k_109";
+		// 9k缓存地址
+		public static final String SG9K_CACHE_ADDRESS = "default.redis.sg9k_109";
+		// 8kmq地址
+		public static final String SG8K_MQ_ADDRESS = "default.mq.sg8k_109";
+	**/	
 	// 默认组织结构树缓存标识
 	public static final String ALL_ORG_CACHE = "ALL_ORG_CACHE::";
 
@@ -58,12 +75,15 @@ public interface PubBusinessService
 	public List<ASObject> test();
 
 	// 机组新增 删除 修改
-	public int addMachine(String dbKey, String redisKey, ASObject machine, Map<String, String> gpInfoMap, Integer userId) throws BaseServiceException;
+	public int addMachine(String dbKey, String redisKey, ASObject machine, Map<String, String> gpInfoMap,
+			Integer userId) throws BaseServiceException;
 
 	// 机组的批量混合操作
-	public void updateMachine(List<String> delMachines, List<ASObject> addMachines, List<ASObject> modifyMachines, Integer userId) throws BaseServiceException;
+	public void updateMachine(List<String> delMachines, List<ASObject> addMachines, List<ASObject> modifyMachines,
+			Integer userId) throws BaseServiceException;
 
-	public void modifyMachine(String dbKey, String redisKey, ASObject machine, Map<String, String> gpInfoMap) throws BaseServiceException;
+	public void modifyMachine(String dbKey, String redisKey, ASObject machine, Map<String, String> gpInfoMap)
+			throws BaseServiceException;
 
 	public void deleteMachine(String dbKey, String redisKey, String id) throws BaseServiceException;
 
@@ -162,25 +182,29 @@ public interface PubBusinessService
 	 * @throws Exception
 	 */
 	public ASObject getExtDataSourceDataByIds(Set<String> sourceIds) throws Exception;
-
-	public <T> Map<String, T> getHgetAllForTest(String key);
-
-	// 根据父节点ID获取下级子节点列表
+	
+	public <T> Map<String,T> getHgetAllForTest(String key);
+	
+	//根据父节点ID获取下级子节点列表
 	public List<ASObject> getOrgListByParentId(Integer root);
-
-	// 根据类型获取所有过滤节点树形结构
+	
+	//根据类型获取所有过滤节点树形结构
 	public List<ASObject> getOrgListTreeByFilterType(Integer type);
-
+	
 	// 指定类型orgtype 获取用户过滤后的导航树 需要结合缓存
 	public <T> T getCheckOrgListTreeForType(Integer userId, String rootId, final Integer orgtype);
 
 	// 获取超级用户过滤后的导航树 需要结合缓存
 	public <T> T getCheckOrgListTreeForType(String rootId, final Integer orgtype);
-
-	// 获取用户缓存
+	
+	//新增导航树
+	//public int addOrganization(ASObject org) throws  BaseServiceException;
+	
+	//获取用户缓存
 	public User getUserById(Integer userId);
-
+	
 	public void reloadUserCache(User user) throws BaseServiceException;
-
+	
 	public void deleteUserCache(Integer userId) throws BaseServiceException;
+	
 }

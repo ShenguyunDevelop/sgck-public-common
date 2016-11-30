@@ -2,10 +2,13 @@ package com.sgck.dubbointerface.pub;
 
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import com.sgck.common.domain.User;
 
 import flex.messaging.io.amf.ASObject;
 
+@Component
 public interface SubSystemCommonService {
 	
 	/**
