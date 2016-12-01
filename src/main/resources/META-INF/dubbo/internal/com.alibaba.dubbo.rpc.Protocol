@@ -1,0 +1,1 @@
+jsonrpc=com.sgck.dubbo.rpc.protocol.jsonrpc.JsonRpcProtocol
