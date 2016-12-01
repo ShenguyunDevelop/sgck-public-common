@@ -226,10 +226,16 @@ public class CheckSession implements Filter {
 			// ServletOutputStream respWriter = response.getOutputStream();
 			respWriter.write(respHeader, 0, HEAD_SIZE);
 			respWriter.write(respByteStream.toByteArray(), 0, (int) respByteStream.size());
-			respWriter.flush();
-			respWriter.close();
 		} catch (Exception e) {
 			DSLogger.error("handleError exception:", e);
+		}finally{
+			if(null!=respWriter){
+				try {
+					respWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 

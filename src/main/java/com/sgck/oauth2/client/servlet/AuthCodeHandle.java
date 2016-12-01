@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Strings;
 import com.sgck.oauth2.client.OAuthConstant;
 import com.sgck.oauth2.client.OAuthPath;
 import com.sgck.oauth2.client.config.OAuthConfig;
@@ -47,14 +48,43 @@ public class AuthCodeHandle extends HttpServlet {
 			} else {
 				String sid = json.getString("sid");
 				int openId = json.getInt("openid");
+				String userName = json.getString("name");
+				int isSuperParam = 0;
+				//判斷用戶名是否存在
+				if(Strings.isNullOrEmpty(userName)){
+					//不存在从cookie里面获取
+					Cookie  isSuperCookie = CookiesUtil.getCookiesByName(request, OAuthConstant.IS_SUPER);
+					if(null != isSuperCookie){
+						try{
+							isSuperParam = Integer.parseInt(isSuperCookie.getValue());
+						}catch(Exception e){
+						}
+					}
+				}
+				if(null!=userName && userName.equals("superadmin")){
+					isSuperParam = 1;
+				}
 				addLoginRecord(request,sid,openId);
 				String paths = HttpRequestUtil.getRootUrlWithoutServlet(request);
+				//存入Cookie
+				CookiesUtil.setCookies(response, OAuthConstant.IS_SUPER, isSuperParam+"", "/",
+						OAuthConstant.COOKIES_EXPIRE);
 				response.sendRedirect(paths + OAuthConfig.getInstance().getRedirectUri() + "?code=" + code + "&sid="
-						+ sid + ((null == state) ? "" : "&state=" + state));
+						+ sid + "&isSuper="+isSuperParam +  ((null == state) ? "" : "&state=" + state ));
+				
+				
 			}
 		} catch (Exception e) {
-			e.printStackTrace(response.getWriter());
-			response.getWriter().close();
+			//e.printStackTrace(response.getWriter());
+			//response.getWriter().close();
+			try {
+				//服务器内部错误
+				String paths = HttpRequestUtil.getRootUrlWithoutServlet(request);
+				response.sendRedirect(paths + OAuthConfig.getInstance().getRedirectUri() + "?error=error");
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				response.getWriter().close();
+			}
 			return;
 		}finally {
 			if(null!=json){

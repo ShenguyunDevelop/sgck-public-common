@@ -256,5 +256,28 @@ final public class JUtil {
 		}
 		return strb.toString();
 	}
+	
+	public static Method getMethod(Class myClass, String methodName, Class... values) {
+		Method theMethod = null;
+		try {
+			theMethod = myClass.getDeclaredMethod(methodName, values);
+		} catch (NoSuchMethodException e) {
+			theMethod = getMethod(myClass.getSuperclass(), methodName, values);
+		}
+		return theMethod;
+	}
+
+	//首字母大写
+	public static String getFirstWordUppercase(String name) {
+		return  name.substring(0, 1).toUpperCase() + name.substring(1);
+	}
+
+	public static String getGetMethod(String name) {
+		return "get" + getFirstWordUppercase(name);
+	}
+
+	public static String setGetMethod(String name) {
+		return "set" +getFirstWordUppercase(name);
+	}
 
 }

@@ -18,7 +18,12 @@ public class OAuthConstant {
 	 * 用户名称
 	 */
 	public final static String USERNAME_NAME = "SG_USERNAME";
+	
 	public final static String USERID_NAME = "SG_USERID";
+	/**
+	 * 是否是超级用户
+	 */
+	public final static String IS_SUPER = "IS_SUPER";
 	/**
 	 * 是否记住用户信息自动登录
 	 */
