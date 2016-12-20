@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Strings;
+import com.sgck.common.log.DSLogger;
 import com.sgck.oauth2.client.OAuthConstant;
 import com.sgck.oauth2.client.OAuthPath;
 import com.sgck.oauth2.client.config.OAuthConfig;
@@ -30,8 +31,10 @@ public class AuthCodeHandle extends HttpServlet {
 		String state = request.getParameter("state");
 
 		if (null == code || code.equals("")) {
-			response.getWriter().print("ERROR:Without auth code!");
-			response.getWriter().close();
+			//response.getWriter().print("ERROR:Without auth code!");
+			//response.getWriter().close();
+			DSLogger.info("ERROR:Without auth code!");
+			response404(request,response);
 			return;
 		}
 		JSONObject json = null;
@@ -42,8 +45,10 @@ public class AuthCodeHandle extends HttpServlet {
 					(null != isrem && isrem.getValue().equals("1")));
 			json  = JSONObject.fromObject(userInfoResult);
 			if (null == userInfoResult || !json.containsKey("sid")) {
-				response.getWriter().print("ERROR:Authorization error");
-				response.getWriter().close();
+				//response.getWriter().print("ERROR:Authorization error");
+				//response.getWriter().close();
+				DSLogger.info("ERROR:Authorization error!");
+				response404(request,response);
 				return;
 			} else {
 				String sid = json.getString("sid");
@@ -72,20 +77,10 @@ public class AuthCodeHandle extends HttpServlet {
 				response.sendRedirect(paths + OAuthConfig.getInstance().getRedirectUri() + "?code=" + code + "&sid="
 						+ sid + "&isSuper="+isSuperParam +  ((null == state) ? "" : "&state=" + state ));
 				
-				
 			}
 		} catch (Exception e) {
-			//e.printStackTrace(response.getWriter());
-			//response.getWriter().close();
-			try {
-				//服务器内部错误
-				String paths = HttpRequestUtil.getRootUrlWithoutServlet(request);
-				response.sendRedirect(paths + OAuthConfig.getInstance().getRedirectUri() + "?error=error");
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				response.getWriter().close();
-			}
-			return;
+			e.printStackTrace(response.getWriter());
+			response404(request,response);
 		}finally {
 			if(null!=json){
 				json = null;
@@ -94,6 +89,21 @@ public class AuthCodeHandle extends HttpServlet {
 
 	}
 
+	private void response404(HttpServletRequest request, HttpServletResponse response){
+		try {
+			//服务器内部错误
+			String paths = HttpRequestUtil.getRootUrlWithoutServlet(request);
+			response.sendRedirect(paths + OAuthConfig.getInstance().getRedirectUri() + "?error=error");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			try {
+				response.getWriter().print(e1.getMessage());
+				response.getWriter().close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	private void addLoginRecord(HttpServletRequest req,String sid,int openId) throws Exception {
 		HttpRequestUtil.doGet(req.getScheme() + "://" + req.getServerName()
 		+ OAuthConfig.getInstance().getOauthLoginRecord() + "?openId=" + openId + "&sid="+sid);

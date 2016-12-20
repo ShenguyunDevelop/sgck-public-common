@@ -13,7 +13,7 @@ import org.springframework.util.CollectionUtils;
 import com.google.common.collect.Maps;
 import com.sgck.common.extdatasource.domain.ReadConfig;
 import com.sgck.common.log.DSLogger;
-import com.sgck.data.source.cache.ExtDataSourceCache;
+import com.sgck.data.source.cache.ExtDataSourceCacheIntegerface;
 
 import flex.messaging.io.amf.ASObject;
 import net.sf.json.JSONObject;
@@ -22,7 +22,7 @@ import net.sf.json.JSONObject;
 public class DefaultReadConfigServiceImpl implements ReadConfigService {
 
 	@Autowired
-	private ExtDataSourceCache extDataSourceCache;
+	private ExtDataSourceCacheIntegerface extDataSourceCache;
 
 	private Map<Integer, ReadService> readManagerServiceMapping = Maps.newConcurrentMap();
 

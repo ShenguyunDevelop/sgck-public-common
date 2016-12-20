@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import com.sgck.common.extdatasource.domain.ReadConfig;
-import com.sgck.data.source.cache.ExtDataSourceCache;
+import com.sgck.data.source.cache.ExtDataSourceCacheIntegerface;
 import com.sgck.data.source.consts.ReadTypeConsts;
 import com.sgck.data.source.manage.ExtDataThreadPool;
 import com.sgck.data.source.receive.ReceiveService;
@@ -19,7 +19,7 @@ import com.sgck.data.source.service.ReadConfigService;
 public class ModbusTcpRead extends ReadAdapter {
 
 	@Resource
-	private ExtDataSourceCache extDataSourceCache;
+	private ExtDataSourceCacheIntegerface extDataSourceCache;
 	@Resource
 	private ReceiveService modbusTcpReceive;
 	@Resource

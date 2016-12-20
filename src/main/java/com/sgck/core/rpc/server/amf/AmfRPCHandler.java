@@ -305,7 +305,7 @@ public class AmfRPCHandler extends RecvHandler
 					funcName = (String) rpcObj.get("foo").toString();
 					paramList = (ArrayList<?>) rpcObj.get("params");
 					
-					DSLogger.info("className:" + className + "; funName:" + funcName + "; paramList:" + paramList.toString());
+					//DSLogger.info("className:" + className + "; funName:" + funcName + "; paramList:" + paramList.toString());
 					
 					InvokeResult retObj = new InvokeResult();
 					retObj.setCode(0);

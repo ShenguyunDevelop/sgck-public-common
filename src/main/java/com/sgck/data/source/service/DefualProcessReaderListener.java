@@ -16,7 +16,7 @@ import com.sgck.common.log.DSLogger;
 import com.sgck.common.log.SGLogger;
 import com.sgck.core.exception.DSException;
 import com.sgck.core.task.TaskStatus;
-import com.sgck.data.source.cache.ExtDataSourceCache;
+import com.sgck.data.source.cache.ExtDataSourceCacheIntegerface;
 import com.sgck.data.source.task.ExtDsTestTask;
 
 import flex.messaging.io.amf.ASObject;
@@ -25,7 +25,7 @@ import flex.messaging.io.amf.ASObject;
 public class DefualProcessReaderListener extends DefualProcessReaderListenerAdapter {
 
 	@Resource
-	private ExtDataSourceCache extDataSourceCache;
+	private ExtDataSourceCacheIntegerface extDataSourceCache;
 	
 	@Resource
 	private SGLogger SGLogger;
