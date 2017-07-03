@@ -2,22 +2,20 @@ package com.sgck.data.source.service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
-import com.serotonin.modbus4j.code.DataSourceErrorCode;
+
 import com.google.common.collect.Lists;
+import com.serotonin.modbus4j.code.DataSourceErrorCode;
 import com.sgck.common.extdatasource.domain.ReadConfig;
 import com.sgck.common.extdatasource.domain.ReadResult;
-import com.sgck.common.log.DSLogger;
 import com.sgck.common.log.SGLogger;
 import com.sgck.core.exception.DSException;
-import com.sgck.core.task.TaskStatus;
 import com.sgck.data.source.cache.ExtDataSourceCacheIntegerface;
-import com.sgck.data.source.task.ExtDsTestTask;
 
 import flex.messaging.io.amf.ASObject;
 
@@ -27,10 +25,10 @@ public class DefualProcessReaderListener extends DefualProcessReaderListenerAdap
 	@Resource
 	private ExtDataSourceCacheIntegerface extDataSourceCache;
 	
-	@Resource
-	private SGLogger SGLogger;
+	//@Resource
+	//private SGLogger SGLogger;
 	
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	//private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	private int maxTmpSize = 10;
 
@@ -50,9 +48,9 @@ public class DefualProcessReaderListener extends DefualProcessReaderListenerAdap
 		}
 				
 		computeResult(config, result);
-		Date datatime = (Date)result.getResults().get("datatime");
+		//Date datatime = (Date)result.getResults().get("datatime");
 		
-		SGLogger.info("requestResult:"+config.getDataSourceId() + ";返回结果:[" + sdf.format(datatime) + "|" + result.getResults().get("data"));
+		//SGLogger.info("requestResult:"+config.getDataSourceId() + ";返回结果:[" + sdf.format(datatime) + "|" + result.getResults().get("data"));
 		extDataSourceCache.putDataSourceCacheBySourceId(config.getDataSourceId(), result.getResults());
 		saveTmp(config, result);
 
