@@ -1,11 +1,16 @@
 package com.sgck.oauth2.client.service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 
 import com.google.common.base.Strings;
 import com.sgck.oauth2.client.GrantType;
@@ -180,18 +185,42 @@ public class UserService {
 		String rootPath = HttpRequestUtil.getUrlWithoutServlet(req);
 		String ruri = rootPath + OAuthPath.REDIRECT_SERVLET_URI;
 
-		if (null == clientId || null == authCode)
+		if (null == clientId || null == authCode){
+			Logger.getRootLogger().error("请求参数clientId为空或者授权码为空！");
 			return null;
+		}
+			
 
-		String paramStr = "grant_type=" + GrantType.AUTH_CODE + "&client_id=" + clientId + "" + "&code=" + authCode
-				+ "&redirect_uri=" + ruri;
 
+		String requestUrl = req.getScheme() + "://" + req.getServerName() + OAuthConfig.getInstance().getOauthPasswordLogin();
+		
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("grant_type", GrantType.AUTH_CODE);
+		params.put("client_id", clientId);
+		params.put("code", authCode);
+		params.put("redirect_uri", ruri);
+		
+		Map<String,String> headers = new HashMap<String,String>();
+		
+		if (null != clientId) {
+			String scr = clientSecret = ((null == clientSecret) ? "" : clientSecret);
+			headers.put("Authorization", "Basic " + new String(Base64.encodeBase64((clientId + ":" + scr).getBytes())));
+			
+		}
+		
 		JSONObject tokenResult = null;
-		String postResult = HttpRequestUtil.doPost(
-				req.getScheme() + "://" + req.getServerName() + OAuthConfig.getInstance().getOauthPasswordLogin(),
-				paramStr, clientId, clientSecret);
-		if (null != postResult)
+		
+		Logger.getRootLogger().info("请求accesstoken:" + requestUrl+",params:" + params.toString());
+		
+		String postResult = HttpRequestUtil.doPost(requestUrl,params, headers);
+		
+		Logger.getRootLogger().info("请求accesstoken:" + requestUrl+",结果:" + postResult);
+		
+		
+		if (null != postResult){
 			tokenResult = JSONObject.fromObject(postResult);
+		}
+			
 
 		String token = null;
 		if (null != tokenResult && tokenResult.containsKey("access_token")
