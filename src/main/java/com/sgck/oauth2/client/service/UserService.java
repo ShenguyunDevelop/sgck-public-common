@@ -70,7 +70,7 @@ public class UserService {
 	 */
 	public JSONObject getUserInfoBySid(String sid, HttpServletRequest req) throws Exception {
 
-		String meresult = HttpRequestUtil.doGet(req.getScheme() + "://" + req.getServerName()
+		String meresult = HttpRequestUtil.doGet(getReuqestServerName(req)
 				+ OAuthConfig.getInstance().getOauthUser() + "?sid=" + sid);
 		if (null != meresult) {
 			return JSONObject.fromObject(meresult);
@@ -93,7 +93,7 @@ public class UserService {
 	 * @throws Exception
 	 */
 	public JSONObject getUserInfoByToken(String token, ServletRequest req) throws Exception {
-		String toresult = HttpRequestUtil.doGet(req.getScheme() + "://" + req.getServerName()
+		String toresult = HttpRequestUtil.doGet(getReuqestServerName((HttpServletRequest)req)
 				+ OAuthConfig.getInstance().getOauthUser() + "?access_token=" + token);
 		if (null != toresult) {
 			return JSONObject.fromObject(toresult);
@@ -125,9 +125,10 @@ public class UserService {
 				+ "&password=" + password;
 
 		JSONObject tokenResult = null;
-		String postResult = HttpRequestUtil.doPost(
-				req.getScheme() + "://" + req.getServerName() + OAuthConfig.getInstance().getOauthPasswordLogin(),
-				paramStr, clientId, clientSecret);
+		String loginUrl = getReuqestServerName(req) + OAuthConfig.getInstance().getOauthPasswordLogin(req);
+		System.out.println("调用授权接口rul：" + loginUrl);
+		String postResult = HttpRequestUtil.doPost(loginUrl,paramStr, clientId, clientSecret);
+		System.out.println("授权结果：" + postResult);
 		if (null != postResult)
 			tokenResult = JSONObject.fromObject(postResult);
 
@@ -137,8 +138,10 @@ public class UserService {
 
 			token = tokenResult.getString("access_token");
 
-			String meresult = HttpRequestUtil.doGet(req.getScheme() + "://" + req.getServerName()
-					+ OAuthConfig.getInstance().getOauthMe() + "?access_token=" + token);
+			String userInfoUrl = getReuqestServerName(req) + OAuthConfig.getInstance().getOauthMe() + "?access_token=" + token;
+			System.out.println("调用获取用户信息url：" + userInfoUrl);
+			String meresult = HttpRequestUtil.doGet(userInfoUrl);
+			System.out.println("获取用户信息结果：" + meresult);
 			JSONObject result = null;
 			if (null != meresult)
 				result = JSONObject.fromObject(meresult);
@@ -168,7 +171,15 @@ public class UserService {
 		return null;
 
 	}
+	
+	public String getReuqestServerName(HttpServletRequest req){
 
+		if(OAuthConstant.IS_ONLY_LOCAL){
+			return req.getScheme() + "://127.0.0.1" + ":" + OAuthConfig.getInstance().getOauthSrverPort();
+		}
+		return req.getScheme() + "://" + req.getServerName();
+	}
+	
 	/**
 	 * 用户登录（授权码模式）
 	 * 
@@ -192,7 +203,7 @@ public class UserService {
 			
 
 
-		String requestUrl = req.getScheme() + "://" + req.getServerName() + OAuthConfig.getInstance().getOauthPasswordLogin();
+		String requestUrl = getReuqestServerName(req) + OAuthConfig.getInstance().getOauthPasswordLogin(req);
 		
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("grant_type", GrantType.AUTH_CODE);
@@ -210,11 +221,11 @@ public class UserService {
 		
 		JSONObject tokenResult = null;
 		
-		Logger.getRootLogger().info("请求accesstoken:" + requestUrl+",params:" + params.toString());
+		System.out.println("向authserver请求accesstoken:" + requestUrl+",params:" + params.toString());
 		
-		String postResult = HttpRequestUtil.doPost(requestUrl,params, headers);
+		String postResult = HttpRequestUtil.doGet(requestUrl,params, headers);
 		
-		Logger.getRootLogger().info("请求accesstoken:" + requestUrl+",结果:" + postResult);
+		System.out.println("请求accesstoken结果:" + postResult);
 		
 		
 		if (null != postResult){
@@ -227,9 +238,12 @@ public class UserService {
 				&& null != tokenResult.getString("access_token")) {
 
 			token = tokenResult.getString("access_token");
+			
+			requestUrl = getReuqestServerName(req) + OAuthConfig.getInstance().getOauthMe() + "?access_token=" + token;
+			
+			Logger.getRootLogger().info("请求userinfo:" + requestUrl);
 
-			String meresult = HttpRequestUtil.doGet(req.getScheme() + "://" + req.getServerName()
-					+ OAuthConfig.getInstance().getOauthMe() + "?access_token=" + token);
+			String meresult = HttpRequestUtil.doGet(requestUrl);
 			JSONObject result = null;
 			if (null != meresult)
 				result = JSONObject.fromObject(meresult);
@@ -285,8 +299,10 @@ public class UserService {
 			// 去除缓存
 			String sid = sck.getValue();
 			if (!Strings.isNullOrEmpty(sid)) {
-				HttpRequestUtil.doGet(req.getScheme() + "://" + req.getServerName()
-						+ OAuthConfig.getInstance().getOauthDelCache() + "?sid=" + sck.getValue());
+				String delCacheUrl = getReuqestServerName(req)
+						+ OAuthConfig.getInstance().getOauthDelCache() + "?sid=" + sck.getValue();
+				System.out.println("清除缓存url：" + delCacheUrl);
+				HttpRequestUtil.doGet(delCacheUrl);
 			}
 			CookiesUtil.removeCookies(res, sck.getName(), sck.getPath());
 		}
@@ -297,6 +313,7 @@ public class UserService {
 		req.getSession().setAttribute(OAuthConstant.LAST_CHECK_TIME_NAME, null);
 		req.getSession().setAttribute(OAuthConstant.SID_NAME, null);
 
+		System.out.println("清除缓存完成");
 		return "{\"success\":1}";
 
 	}

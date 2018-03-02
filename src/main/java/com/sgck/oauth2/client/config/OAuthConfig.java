@@ -3,6 +3,8 @@ package com.sgck.oauth2.client.config;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.sgck.oauth2.client.GrantType;
 import com.sgck.oauth2.client.OAuthPath;
 
@@ -224,8 +226,7 @@ public class OAuthConfig implements Serializable {
 	 */
 	public String getOauthLoginUrl() {
 		if (null == this.oauthLoginUrl) {
-			this.oauthLoginUrl = ((this.oauthSrverPort > 0) ? (":" + String.valueOf(this.oauthSrverPort)) : "")
-					+ ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/login.jsp?title=123456";
+			this.oauthLoginUrl = ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/login.jsp?title=123456";
 		}
 		// if (!this.oauthLoginUrl.startsWith(OAuthConstant.OAUTH_HTTP))
 		// this.oauthLoginUrl = OAuthConstant.OAUTH_HTTP + this.oauthLoginUrl;
@@ -241,10 +242,9 @@ public class OAuthConfig implements Serializable {
 	 * 
 	 * @return
 	 */
-	public String getOauthPasswordLogin() {
+	public String getOauthPasswordLogin(HttpServletRequest req) {
 		if (null == this.oauthPasswordLogin) {
-			this.oauthPasswordLogin = ((this.oauthSrverPort > 0) ? (":" + String.valueOf(this.oauthSrverPort)) : "")
-					+ ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/oauth/token";
+			this.oauthPasswordLogin = ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/oauth/token";
 		}
 
 		// if (!this.oauthPasswordLogin.startsWith(OAuthConstant.OAUTH_HTTP))
@@ -265,8 +265,7 @@ public class OAuthConfig implements Serializable {
 	 */
 	public String getOauthLogout() {
 		if (null == this.oauthLogout) {
-			this.oauthLogout = ((this.oauthSrverPort > 0) ? (":" + String.valueOf(this.oauthSrverPort)) : "")
-					+ ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/logout.do";
+			this.oauthLogout = ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/logout.do";
 		}
 		// if (!this.oauthLogout.startsWith(OAuthConstant.OAUTH_HTTP))
 		// this.oauthLogout = OAuthConstant.OAUTH_HTTP + this.oauthLogout;
@@ -306,8 +305,7 @@ public class OAuthConfig implements Serializable {
 	 */
 	public String getOauthAuthorize() {
 		if (null == this.oauthAuthorize) {
-			this.oauthAuthorize = ((this.oauthSrverPort > 0) ? (":" + String.valueOf(this.oauthSrverPort)) : "")
-					+ ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/oauth/authorize";
+			this.oauthAuthorize = ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/oauth/authorize";
 		}
 		// if (!this.oauthAuthorize.startsWith(OAuthConstant.OAUTH_HTTP))
 		// this.oauthAuthorize = OAuthConstant.OAUTH_HTTP + this.oauthAuthorize;
@@ -325,8 +323,7 @@ public class OAuthConfig implements Serializable {
 	 */
 	public String getOauthMe() {
 		if (null == this.oauthMe) {
-			this.oauthMe = ((this.oauthSrverPort > 0) ? (":" + String.valueOf(this.oauthSrverPort)) : "")
-					+ ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/userinfo";
+			this.oauthMe = ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/userinfo";
 		}
 
 		return this.oauthMe;
@@ -337,8 +334,7 @@ public class OAuthConfig implements Serializable {
 	 */
 	public String getOauthLoginRecord() {
 		if (null == this.oauthLoginRecord) {
-			this.oauthLoginRecord = ((this.oauthSrverPort > 0) ? (":" + String.valueOf(this.oauthSrverPort)) : "")
-					+ ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/addUserLoginRecord";
+			this.oauthLoginRecord = ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/addUserLoginRecord";
 		}
 
 		return this.oauthLoginRecord;
@@ -351,8 +347,7 @@ public class OAuthConfig implements Serializable {
 	 */
 	public String getOauthDelCache() {
 		if (null == this.oauthDelCache) {
-			this.oauthDelCache = ((this.oauthSrverPort > 0) ? (":" + String.valueOf(this.oauthSrverPort)) : "")
-					+ ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/delCache";
+			this.oauthDelCache = ((null != this.oauthServiceName) ? ("/" + oauthServiceName) : "") + "/delCache";
 		}
 		return this.oauthDelCache;
 	}

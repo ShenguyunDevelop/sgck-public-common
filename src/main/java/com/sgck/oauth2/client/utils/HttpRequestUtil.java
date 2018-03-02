@@ -31,10 +31,11 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
+import com.sgck.oauth2.client.OAuthConstant;
 import com.sgck.oauth2.client.config.OAuthConfig;
+import com.sgck.oauth2.client.service.UserService;
 
-public class HttpRequestUtil
-{
+public class HttpRequestUtil {
 
 	/*
 	 * public static JSONObject getHttpResponse(String url, Map<String, String>
@@ -73,8 +74,7 @@ public class HttpRequestUtil
 	 * (Exception e) { return null; } }
 	 */
 
-	public static String getUrlWithoutServlet(HttpServletRequest req) throws Exception
-	{
+	public static String getUrlWithoutServlet(HttpServletRequest req) throws Exception {
 
 		String url = req.getRequestURL().toString();
 		String serPath = req.getServletPath();
@@ -95,9 +95,7 @@ public class HttpRequestUtil
 
 	}
 
-	public static String getRootUrlWithoutServlet(HttpServletRequest req) throws Exception
-	{
-
+	public static String getRootUrlWithoutServlet(HttpServletRequest req) throws Exception {
 		String url = req.getRequestURL().toString();
 		String serPath = req.getServletPath();
 		String urltop = url;
@@ -135,8 +133,7 @@ public class HttpRequestUtil
 	 * return httpClient; }
 	 */
 
-	public static boolean isPath(String path, String tars) throws Exception
-	{
+	public static boolean isPath(String path, String tars) throws Exception {
 
 		if (tars.indexOf("*") >= 0) {
 			tars = tars.replaceAll("\\*", ".*");
@@ -146,8 +143,7 @@ public class HttpRequestUtil
 		}
 	}
 
-	public static String doPost(String url, String param, String clientId, String scr) throws Exception
-	{
+	public static String doPost(String url, String param, String clientId, String scr) throws Exception {
 
 		URL localURL = new URL(url);
 
@@ -160,7 +156,8 @@ public class HttpRequestUtil
 		httpURLConnection.setRequestProperty("connection", "Keep-Alive");
 		if (null != clientId) {
 			scr = ((null == scr) ? "" : scr);
-			httpURLConnection.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((clientId + ":" + scr).getBytes())));
+			httpURLConnection.setRequestProperty("Authorization",
+					"Basic " + new String(Base64.encodeBase64((clientId + ":" + scr).getBytes())));
 		}
 
 		httpURLConnection.setDoOutput(true);
@@ -203,8 +200,7 @@ public class HttpRequestUtil
 	/**
 	 * POST方式发起http请求
 	 */
-	public static String doPost(String url, Map<String, String> params, Map<String, String> headers)
-	{
+	public static String doPost(String url, Map<String, String> params, Map<String, String> headers) {
 		CloseableHttpClient httpClient = getHttpClient();
 		try {
 			HttpPost post = new HttpPost(url); // 这里用上本机的某个工程做测试
@@ -240,21 +236,20 @@ public class HttpRequestUtil
 			UrlEncodedFormEntity uefEntity = new UrlEncodedFormEntity(list, "UTF-8");
 			post.setEntity(uefEntity);
 
-			
 			// 执行请求
 			CloseableHttpResponse httpResponse = httpClient.execute(post);
 			try {
 				HttpEntity entity = httpResponse.getEntity();
-				
+
 				if (null != entity) {
-					String result = EntityUtils.toString(uefEntity);
+					String result = EntityUtils.toString(entity);
 					Logger.getRootLogger().info("POST 请求...." + post.getURI() + ",返回:" + result);
 					return result;
 				}
 			} finally {
 				httpResponse.close();
 			}
-			
+
 			Logger.getRootLogger().error("POST 请求...." + post.getURI() + ",无任何返回数据");
 			return null;
 
@@ -274,20 +269,94 @@ public class HttpRequestUtil
 
 	}
 
-	private static CloseableHttpClient getHttpClient()
-	{
+	private static CloseableHttpClient getHttpClient() {
 		return HttpClients.createDefault();
 	}
 
-	private static void closeHttpClient(CloseableHttpClient client) throws IOException
-	{
+	private static void closeHttpClient(CloseableHttpClient client) throws IOException {
 		if (client != null) {
 			client.close();
 		}
 	}
 
-	public static String doGet(String url) throws Exception
-	{
+	public static String doGet(String url, Map<String, String> params, Map<String, String> headers) throws Exception {
+
+		StringBuilder sb = new StringBuilder(url);
+		// 创建参数列表
+		if (!CollectionUtils.isEmpty(params)) {
+
+			Iterator<Entry<String, String>> iterator = params.entrySet().iterator();
+			Entry<String, String> entry = null;
+			
+			while (iterator.hasNext()) {
+				entry = iterator.next();
+				if (null != entry.getValue()) {
+					
+					if(sb.toString().contains("?")){
+						sb.append("&").append(entry.getKey()).append("=").append(entry.getValue());
+					}else{
+						sb.append("?").append(entry.getKey()).append("=").append(entry.getValue());
+					}
+				}
+
+			}
+		}
+		
+		Logger.getRootLogger().error("GET 请求....URL:" + sb.toString());
+
+		URL localURL = new URL(sb.toString());
+
+		URLConnection connection = localURL.openConnection();
+		HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
+
+		httpURLConnection.setRequestProperty("Accept-Charset", "utf-8");
+		httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		// 追加头
+		if (!CollectionUtils.isEmpty(headers)) {
+			Iterator<Entry<String, String>> iterator = headers.entrySet().iterator();
+			Entry<String, String> entry = null;
+			while (iterator.hasNext()) {
+				entry = iterator.next();
+				if (null != entry.getValue()) {
+					httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+
+		InputStream inputStream = null;
+		InputStreamReader inputStreamReader = null;
+		BufferedReader reader = null;
+		StringBuffer resultBuffer = new StringBuffer();
+		String tempLine = null;
+
+		try {
+
+			httpURLConnection.connect();
+
+			if (httpURLConnection.getResponseCode() >= 300)
+				throw new Exception(
+						"HTTP Request is not success, Response code is " + httpURLConnection.getResponseCode());
+
+			inputStream = httpURLConnection.getInputStream();
+			inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+			reader = new BufferedReader(inputStreamReader);
+
+			while ((tempLine = reader.readLine()) != null) {
+				resultBuffer.append(tempLine);
+			}
+		} finally {
+			if (reader != null)
+				reader.close();
+			if (inputStreamReader != null)
+				inputStreamReader.close();
+			if (inputStream != null)
+				inputStream.close();
+		}
+
+		return resultBuffer.toString();
+	}
+
+	public static String doGet(String url) throws Exception {
 
 		URL localURL = new URL(url);
 
@@ -308,7 +377,8 @@ public class HttpRequestUtil
 			httpURLConnection.connect();
 
 			if (httpURLConnection.getResponseCode() >= 300)
-				throw new Exception("HTTP Request is not success, Response code is " + httpURLConnection.getResponseCode());
+				throw new Exception(
+						"HTTP Request is not success, Response code is " + httpURLConnection.getResponseCode());
 
 			inputStream = httpURLConnection.getInputStream();
 			inputStreamReader = new InputStreamReader(inputStream, "utf-8");

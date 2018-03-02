@@ -39,5 +39,7 @@ public class OAuthConstant {
 	public final static int COOKIES_EXPIRE = 3 * 30 * 24 * 60 * 60;
 
 	public final static String OAUTH_HTTP = "http://";
+	
+	public static boolean IS_ONLY_LOCAL = true;
 
 }

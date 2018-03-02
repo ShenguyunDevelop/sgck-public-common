@@ -29,9 +29,9 @@ import com.googlecode.jsonrpc4j.spring.JsonProxyFactoryBean;
  */
 public class JsonRpcProtocol extends AbstractProxyProtocol {
 
-	private final Map<String, HttpServer> serverMap = new ConcurrentHashMap<>();
+	private final Map<String, HttpServer> serverMap = new ConcurrentHashMap<String, HttpServer>();
 
-	private final Map<String, JsonRpcServer> skeletonMap = new ConcurrentHashMap<>();
+	private final Map<String, JsonRpcServer> skeletonMap = new ConcurrentHashMap<String, JsonRpcServer>();
 
 	private HttpBinder httpBinder;
 
@@ -113,7 +113,7 @@ public class JsonRpcProtocol extends AbstractProxyProtocol {
 
 	public void destroy() {
 		super.destroy();
-		for (String key : new ArrayList<>(serverMap.keySet())) {
+		for (String key : new ArrayList<String>(serverMap.keySet())) {
 			HttpServer server = serverMap.remove(key);
 			if (server != null) {
 				try {

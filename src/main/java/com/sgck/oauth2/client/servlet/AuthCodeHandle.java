@@ -9,8 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.google.common.base.Strings;
-import com.sgck.common.log.DSLogger;
 import com.sgck.oauth2.client.OAuthConstant;
 import com.sgck.oauth2.client.OAuthPath;
 import com.sgck.oauth2.client.config.OAuthConfig;
@@ -33,7 +34,7 @@ public class AuthCodeHandle extends HttpServlet {
 		if (null == code || code.equals("")) {
 			//response.getWriter().print("ERROR:Without auth code!");
 			//response.getWriter().close();
-			DSLogger.info("ERROR:Without auth code!");
+			Logger.getRootLogger().info("ERROR:Without auth code!");
 			response404(request,response);
 			return;
 		}
@@ -47,7 +48,7 @@ public class AuthCodeHandle extends HttpServlet {
 			if (null == userInfoResult || !json.containsKey("sid")) {
 				//response.getWriter().print("ERROR:Authorization error");
 				//response.getWriter().close();
-				DSLogger.info("ERROR:Authorization error!");
+				Logger.getRootLogger().info("ERROR:Authorization error!");
 				response404(request,response);
 				return;
 			} else {
@@ -70,16 +71,20 @@ public class AuthCodeHandle extends HttpServlet {
 					isSuperParam = 1;
 				}
 				addLoginRecord(request,sid,openId);
-				String paths = HttpRequestUtil.getRootUrlWithoutServlet(request);
+				
 				//存入Cookie
 				CookiesUtil.setCookies(response, OAuthConstant.IS_SUPER, isSuperParam+"", "/",
 						OAuthConstant.COOKIES_EXPIRE);
-				response.sendRedirect(paths + OAuthConfig.getInstance().getRedirectUri() + "?code=" + code + "&sid="
-						+ sid + "&isSuper="+isSuperParam +  ((null == state) ? "" : "&state=" + state ));
+				
+				String paths = HttpRequestUtil.getRootUrlWithoutServlet(request);
+				String redirectUrl = paths + OAuthConfig.getInstance().getRedirectUri() + "?code=" + code + "&sid="
+						+ sid + "&isSuper="+isSuperParam +  ((null == state) ? "" : "&state=" + state );
+				System.out.println("登录成功，重定向url:" + redirectUrl);
+				response.sendRedirect(redirectUrl);
 				
 			}
 		} catch (Exception e) {
-			e.printStackTrace(response.getWriter());
+			Logger.getRootLogger().error(e.getMessage(),e);
 			response404(request,response);
 		}finally {
 			if(null!=json){
@@ -105,8 +110,11 @@ public class AuthCodeHandle extends HttpServlet {
 		}
 	}
 	private void addLoginRecord(HttpServletRequest req,String sid,int openId) throws Exception {
-		HttpRequestUtil.doGet(req.getScheme() + "://" + req.getServerName()
-		+ OAuthConfig.getInstance().getOauthLoginRecord() + "?openId=" + openId + "&sid="+sid);
+		String port = (req.getServerPort() > 0) ? (":" + String.valueOf(req.getServerPort())) : "";
+		String loginRecordUrl = req.getScheme() + "://" + req.getServerName() + port
+				+ OAuthConfig.getInstance().getOauthLoginRecord() + "?openId=" + openId + "&sid="+sid;
+		System.out.println("登录记录url:" + loginRecordUrl);
+		HttpRequestUtil.doGet(loginRecordUrl);
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

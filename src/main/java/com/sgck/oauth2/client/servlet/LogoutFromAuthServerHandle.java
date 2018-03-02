@@ -45,23 +45,24 @@ public class LogoutFromAuthServerHandle extends HttpServlet {
 			String jumpPath = request.getParameter("redirect_uri");
 			PrintWriter pw = response.getWriter();
 			response.setContentType("text/html;charset=utf-8");
+			String port = (request.getServerPort() > 0) ? (":" + String.valueOf(request.getServerPort())) : "";
+			
 			if (null == jumpPath || jumpPath.equals("")) {
 				if (OAuthConfig.getInstance().getGrantType().equals(GrantType.PASSWORD)) {
 					jumpPath = OAuthConfig.getInstance().getLoginPath();
 				} else if (OAuthConfig.getInstance().getGrantType().equals(GrantType.AUTH_CODE)) {
 					String paths = HttpRequestUtil.getUrlWithoutServlet(request);
-					jumpPath = request.getScheme() + "://" + request.getServerName()
+					jumpPath = request.getScheme() + "://" + request.getServerName() + port
 							+ OAuthConfig.getInstance().getOauthAuthorize() + "?response_type=code&client_id="
 							+ OAuthConfig.getInstance().getClientId() + "&redirect_uri=" + paths
 							+ OAuthPath.REDIRECT_SERVLET_URI;
 				} else {
-					jumpPath = request.getScheme() + "://" + request.getServerName()
-							+ OAuthConfig.getInstance().getOauthLoginUrl();
+					jumpPath = request.getScheme() + "://" + request.getServerName() + port + OAuthConfig.getInstance().getOauthLoginUrl();
 				}
 			}
 			if (jumpPath.startsWith("/"))
 				jumpPath = jumpPath.substring(1, jumpPath.length());
-
+			System.out.println("退出跳转url：" + jumpPath);
 			// 清除session及cookies
 			UserService.getInstance().logout(request, response);
 
@@ -75,7 +76,7 @@ public class LogoutFromAuthServerHandle extends HttpServlet {
 			pw.println("	type : \"get\",");
 			pw.println("	async : false,");
 			// 从authserver端退出登录
-			pw.println("	url : \"" + request.getScheme() + "://" + request.getServerName()
+			pw.println("	url : \"" + request.getScheme() + "://" + request.getServerName() + port
 					+ OAuthConfig.getInstance().getOauthLogout() + "\",");
 			pw.println("	cache : false,");
 			pw.println("	dataType : \"jsonp\",");

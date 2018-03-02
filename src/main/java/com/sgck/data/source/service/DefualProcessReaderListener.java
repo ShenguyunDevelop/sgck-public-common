@@ -25,11 +25,6 @@ public class DefualProcessReaderListener extends DefualProcessReaderListenerAdap
 	@Resource
 	private ExtDataSourceCacheIntegerface extDataSourceCache;
 	
-	//@Resource
-	//private SGLogger SGLogger;
-	
-	//private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
 	private int maxTmpSize = 10;
 
 	private TmpDataLocker locker = new TmpDataLocker();
@@ -48,9 +43,6 @@ public class DefualProcessReaderListener extends DefualProcessReaderListenerAdap
 		}
 				
 		computeResult(config, result);
-		//Date datatime = (Date)result.getResults().get("datatime");
-		
-		//SGLogger.info("requestResult:"+config.getDataSourceId() + ";返回结果:[" + sdf.format(datatime) + "|" + result.getResults().get("data"));
 		extDataSourceCache.putDataSourceCacheBySourceId(config.getDataSourceId(), result.getResults());
 		saveTmp(config, result);
 
